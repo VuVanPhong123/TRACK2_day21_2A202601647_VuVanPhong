@@ -1,0 +1,4 @@
+[core]
+    remote = myremote
+['remote "myremote"']
+    url = gs://track2-day21-2a202601647-mlops-20260821/dvc

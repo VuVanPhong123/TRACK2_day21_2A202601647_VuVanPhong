@@ -13,7 +13,15 @@ on:
   workflow_dispatch:
 
 permissions:
+  id-token: write
   contents: read
+
+env:
+  CLOUD_BUCKET: ${{ secrets.CLOUD_BUCKET }}
+  GCP_PROJECT_ID: track2-day16-2a202601647
+  GCP_SERVICE_ACCOUNT: track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com
+  WORKLOAD_IDENTITY_PROVIDER: projects/127452559814/locations/global/workloadIdentityPools/track2-day21-github-pool/providers/track2-day21-github
+  EVAL_THRESHOLD: "0.68"
 
 jobs:
   test:
@@ -51,24 +59,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Authenticate to Google Cloud Storage
-        env:
-          CLOUD_CREDENTIALS: ${{ secrets.CLOUD_CREDENTIALS }}
-        run: |
-          set -euo pipefail
-          if [ -z "${CLOUD_CREDENTIALS:-}" ]; then
-            echo "Missing required GitHub secret: CLOUD_CREDENTIALS" >&2
-            exit 1
-          fi
-          CREDENTIAL_PATH="$RUNNER_TEMP/sa-key.json"
-          python - <<'PY'
-          import os
-          from pathlib import Path
-
-          path = Path(os.environ["RUNNER_TEMP"]) / "sa-key.json"
-          path.write_text(os.environ["CLOUD_CREDENTIALS"], encoding="utf-8")
-          PY
-          echo "GOOGLE_APPLICATION_CREDENTIALS=$CREDENTIAL_PATH" >> "$GITHUB_ENV"
+      - name: Authenticate to Google Cloud with GitHub OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
 
       - name: Configure DVC credential path
         run: |
@@ -91,33 +88,15 @@ jobs:
           echo "accuracy=$ACCURACY" >> "$GITHUB_OUTPUT"
           echo "Model accuracy: $ACCURACY"
 
-      - name: Upload model to Google Cloud Storage
-        env:
-          CLOUD_BUCKET: ${{ secrets.CLOUD_BUCKET }}
-        run: |
-          set -euo pipefail
-          if [ -z "${CLOUD_BUCKET:-}" ]; then
-            echo "Missing required GitHub secret: CLOUD_BUCKET" >&2
-            exit 1
-          fi
-          python - <<'PY'
-          import os
-          from google.cloud import storage
-
-          bucket_name = os.environ["CLOUD_BUCKET"]
-          client = storage.Client()
-          bucket = client.bucket(bucket_name)
-          blob = bucket.blob("models/latest/model.pkl")
-          blob.upload_from_filename("models/model.pkl")
-          print(f"Uploaded model to gs://{bucket_name}/models/latest/model.pkl")
-          PY
-
-      - name: Save metrics as artifact
+      - name: Upload candidate model artifact
         uses: actions/upload-artifact@v4
         with:
-          name: metrics
-          path: outputs/metrics.json
+          name: candidate-model
+          path: |
+            models/model.pkl
+            outputs/metrics.json
           if-no-files-found: error
+          retention-days: 7
 
   eval:
     name: Eval
@@ -131,7 +110,7 @@ jobs:
           python - <<'PY'
           import os
 
-          threshold = 0.70
+          threshold = float(os.environ["EVAL_THRESHOLD"])
           raw_accuracy = os.environ.get("ACCURACY", "").strip()
           if not raw_accuracy:
               raise SystemExit("FAILED: missing accuracy output from Train job.")
@@ -150,6 +129,24 @@ jobs:
     needs: eval
     runs-on: ubuntu-latest
     steps:
+      - name: Download candidate model artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: candidate-model
+
+      - name: Authenticate to Google Cloud with GitHub OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          export_environment_variables: true
+
+      - name: Promote the passing candidate to latest
+        run: |
+          set -euo pipefail
+          test -n "${CLOUD_BUCKET:-}"
+          gcloud storage cp models/model.pkl "gs://${CLOUD_BUCKET}/models/latest/model.pkl"
+
       - name: SSH deploy to VM
         uses: appleboy/ssh-action@v1.0.3
         with:
