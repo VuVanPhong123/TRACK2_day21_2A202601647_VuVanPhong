@@ -30,4 +30,4 @@ Historical `0.68` runs may be referenced as superseded intermediate runs, but ar
 - Invalid feature length -> HTTP 400
 - `mlops-serve.service` is active after loading the feature-enabled model.
 
-Screenshots were not fabricated. Manual capture instructions contain the new valid Step 2 and Step 3 URLs.
+Final submission screenshots are stored in `submission/screenshots/`.
