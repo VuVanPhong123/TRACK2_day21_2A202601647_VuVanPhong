@@ -195,6 +195,20 @@ jobs:
           test -n "${CLOUD_BUCKET:-}"
           gcloud storage cp models/model.pkl "gs://${CLOUD_BUCKET}/models/latest/model.pkl"
 
+      - name: Ensure serving dependencies on VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            set -e
+            PYTHON="/home/${{ secrets.VM_USER }}/mlops-serve/.venv/bin/python"
+            PIP="/home/${{ secrets.VM_USER }}/mlops-serve/.venv/bin/pip"
+            if ! "${PYTHON}" -c "import pandas" >/dev/null 2>&1; then
+              "${PIP}" install --disable-pip-version-check "pandas==2.2.2"
+            fi
+
       - name: SSH deploy to VM
         uses: appleboy/ssh-action@v1.0.3
         with:
