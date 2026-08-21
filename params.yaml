@@ -3,16 +3,13 @@
 # this candidate is fixed.
 model_type: random_forest
 model_params:
-  n_estimators: 100
-  max_depth: null
+  n_estimators: 10
+  max_depth: 3
   min_samples_split: 2
-  max_features: sqrt
-  class_weight:
-    0: 1.25
-    1: 0.75
-    2: 0.75
+  max_features: null
+  class_weight: null
   n_jobs: -1
-  random_state: 9
+  random_state: 42
 validation:
   test_size: 0.2
   random_state: 42
