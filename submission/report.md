@@ -2,7 +2,7 @@
 
 ## Bước 1 – MLflow
 
-Đã tạo dữ liệu thật đúng kích thước `2998 / 500 / 2998` và ghi nhận 16 MLflow runs trong experiment `wine-quality-random-forest`. Cấu hình tốt nhất trong các run là:
+Đã tạo dữ liệu thật đúng kích thước `2998 / 500 / 2998` và ghi nhận 20 MLflow runs trong experiment `wine-quality-random-forest`. Cấu hình tốt nhất trong các run là:
 
 ```yaml
 n_estimators: 300
@@ -13,7 +13,7 @@ class_weight: {0: 1.25, 1: 0.75, 2: 0.75}
 n_jobs: -1
 ```
 
-Run tốt nhất: `bd9db57d9a8646c98b89873811022f8c`; accuracy `0.694`, F1 weighted `0.692202`. Cấu hình này được chọn vì có accuracy/F1 cao nhất trong các thí nghiệm hợp lệ, nhưng vẫn thấp hơn eval gate `0.70`; không hạ threshold và không dùng `eval.csv` để huấn luyện.
+Run tốt nhất: `c661a0eccc7b4daa806276f4f7eba402`; accuracy `0.694`, F1 weighted `0.6922020058778373`. Cấu hình này được chọn vì có accuracy/F1 cao nhất trong các thí nghiệm hợp lệ, nhưng vẫn thấp hơn eval gate `0.70`; không hạ threshold và không dùng `eval.csv` để huấn luyện.
 
 ## Bước 2 và Bước 3
 
