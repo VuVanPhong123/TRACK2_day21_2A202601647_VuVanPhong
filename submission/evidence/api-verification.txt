@@ -1,5 +1,8 @@
+Final verification after Step 3 deployment
 Base URL: http://136.115.109.5:8000
-GET /health -> {"status":"ok"}
-POST /predict with 12-feature rubric sample -> {"prediction":0,"label":"thap"}
+GET /health -> HTTP 200; {"status":"ok"}
+POST /predict with 12-feature rubric sample -> HTTP 200; {"prediction":0,"label":"thap"}
 POST /predict with 3 features -> HTTP 400
 Final systemd status: mlops-serve.service active (running)
+Feature module paths verified: /home/ADMIN/feature_engineering.py and /home/ADMIN/mlops-serve/feature_engineering.py
+Serving entrypoints verified: /home/ADMIN/src/serve.py and /home/ADMIN/mlops-serve/src/serve.py

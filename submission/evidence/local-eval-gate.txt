@@ -1,3 +1,6 @@
-Authoritative local threshold: 0.70.
-Targeted RF feature pipeline: families=density_alcohol+sulfur_alcohol; accuracy=0.7000; weighted F1=0.6988602225; correct=350/500; gate=PASS locally.
-Production path reproduced the same metrics and model SHA-256 on two consecutive runs. Remote Actions evidence is pending; historical 0.68 runs remain superseded.
+Authoritative threshold: 0.70.
+Phase-1 production path: train_phase1.csv=2998 rows; eval.csv=500 rows.
+Final RF feature pipeline: raw 12 inputs plus density_alcohol and sulfur_alcohol families.
+Phase-1 result: accuracy=0.7000 (350/500); weighted F1=0.6988602224515537.
+Step 2 and Step 3 remote metrics were reproduced in GitHub Actions at the authoritative 0.70 gate.
+No metric was rounded to pass and no dataset or label was modified.

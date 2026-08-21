@@ -2,37 +2,32 @@
 
 Repository: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
 
-The authoritative assignment eval gate is `0.70`. The earlier `0.68` runs below are superseded intermediate evidence and must not be presented as final compliance evidence. The local blocker is now resolved: the RandomForest plus deterministic `density_alcohol` and `sulfur_alcohol` feature families reaches `0.7000` (`350/500`). No remote Step 2 run has been pushed yet.
+The authoritative eval gate is `0.70`. The final model is a `RandomForestClassifier` with raw 12 inputs plus deterministic `density_alcohol` and `sulfur_alcohol` features. No metric was rounded to pass, and no dataset generation or labels were changed.
+
+## Final Actions evidence
+
+- Step 2 green: [run 32459739043](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32459739043), successful attempt 2; four jobs green; accuracy `0.7000`, weighted F1 `0.6988602225`.
+- Negative gate: [run 32460456911](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460456911); Eval failed at `0.5500 < 0.70`, Deploy skipped, and GCS latest generation was unchanged.
+- Restored green: [run 32460663067](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460663067); four jobs green; accuracy `0.7000`, weighted F1 `0.6988602225`.
+- Step 3 data trigger: [run 32460997570](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460997570); pointer-only commit `7372e90`; four jobs green; accuracy `0.7480`, weighted F1 `0.7473569388`.
+
+Historical `0.68` runs may be referenced as superseded intermediate runs, but are not final compliance evidence.
 
 ## Real resources
 
 - DVC remote: `myremote -> gs://track2-day21-2a202601647-mlops-20260821/dvc`
-- Bucket: `track2-day21-2a202601647-mlops-20260821`
+- Bucket: `track2-day21-2a202601647-mlops-20260821`; final object `models/latest/model.pkl`
 - Service account: `track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com`
-- VM: `track2-day21-mlops-serve`, `136.115.109.5`
+- VM: `track2-day21-mlops-serve`, `136.115.109.5`, zone `us-central1-a`
 - Firewall: `track2-day21-allow-8000`
+- Final GCS model generation: `1787299301055162`
 - GitHub authentication uses OIDC/WIF; no service-account key is stored in the repository.
 
-## Historical Actions evidence (superseded)
+## Final API evidence
 
-- Step 2 green: [run 32452594273](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452594273) — all 4 jobs green; accuracy `0.6820`, F1 `0.6808`.
-- Negative gate: [run 32452836880](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452836880) — Unit Test/Train green, Eval failed at `0.5480 < 0.68`, Deploy skipped; `latest` generation remained unchanged.
-- Restored green: [run 32453041890](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453041890) — all 4 jobs green; accuracy `0.6820`, F1 `0.6808`.
-- Step 3 data-trigger: [run 32453289515](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453289515) — automatically triggered by commit `1748341334a78e688dcc270d32d750e900724612`; all 4 jobs green; accuracy `0.7480`, F1 `0.7471`.
+- `GET http://136.115.109.5:8000/health` -> HTTP 200, `{"status":"ok"}`
+- Rubric `POST /predict` -> HTTP 200, `{"prediction":0,"label":"thap"}`
+- Invalid feature length -> HTTP 400
+- `mlops-serve.service` is active after loading the feature-enabled model.
 
-The listed Actions runs used the superseded `0.68` gate and are not final compliance evidence.
-
-## Current local candidate
-
-- Model: `RandomForestClassifier` with `n_estimators=300`, `max_depth=30`, `random_state=42`, and the existing class weights.
-- Feature pipeline: raw 12 inputs plus `alcohol_density`, `alcohol_density_gap`, and `total_sulfur_alcohol_ratio`.
-- Phase-1 local result: accuracy `0.7000`, weighted F1 `0.6988602225`, `350/500` correct.
-- Remote Step 2, negative gate, restore, and Step 3 evidence remain pending the next authorized push.
-
-## API evidence
-
-- `GET http://136.115.109.5:8000/health` -> `{"status":"ok"}`
-- `POST /predict` with the rubric sample -> `{"prediction":0,"label":"thap"}`
-- Invalid feature length -> HTTP `400`
-
-See `report.md`, `metrics-comparison.md`, `evidence/`, and the untracked `job.txt` for the blocked QA record. Screenshots were not fabricated; the manual capture instructions remain in `MANUAL_SCREENSHOTS_REQUIRED.md`.
+Screenshots were not fabricated. Manual capture instructions contain the new valid Step 2 and Step 3 URLs.

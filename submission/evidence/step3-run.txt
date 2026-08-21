@@ -1,10 +1,12 @@
-Historical Step 3 run: 32453289515 (superseded 0.68 gate)
-URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453289515
-Trigger commit: 1748341334a78e688dcc270d32d750e900724612
-Trigger type: push caused by data/train_phase1.csv.dvc pointer update
-Pointer-only commit: data/train_phase1.csv.dvc
-Rows: 2998 -> 5996
+Final Step 3 data-trigger run: 32460997570
+URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460997570
+Trigger commit: 7372e90cd23db7e98a1ace1ec7643d058e4d07ea
+Trigger type: push caused by the pointer-only data commit
+Pointer-only commit contents: data/train_phase1.csv.dvc
+DVC push completed before Git push.
+Rows: 2998 -> 5996; final pointer md5=5853e7711c78f02286e65fca6cb6e124
 Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
-Validation accuracy=0.7233; held-out accuracy=0.7480; weighted F1=0.7470636556
-Gate: 0.7480 >= 0.68; not final 0.70 compliance
-Health check: passed on attempt 2.
+Threshold: EVAL_THRESHOLD=0.70
+Metrics: accuracy=0.7480; weighted F1=0.7473569387652077
+Feature families=density_alcohol+sulfur_alcohol
+API after Step 3 deploy: /health=200; /predict=200; invalid length=400

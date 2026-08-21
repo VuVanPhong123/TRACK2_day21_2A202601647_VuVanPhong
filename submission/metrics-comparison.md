@@ -2,15 +2,16 @@
 
 Authoritative assignment gate: `0.70`.
 
-The local Step 2 candidate is now compliant at `0.7000`; no remote Step 2 or Step 3 run was generated in the current local-only pass. The historical remote values below remain superseded intermediate evidence under the old `0.68` gate.
-
 | Metric | Step 2 | Step 3 |
 |---|---:|---:|
 | training rows | 2998 | 5996 |
-| validation accuracy | 0.6767 | 0.7233 (historical) |
-| held-out accuracy | 0.7000 (local) | 0.7480 (historical) |
-| weighted F1 | 0.6988602225 (local) | 0.7470636556 (historical) |
-| Actions run | pending | 32453289515 (superseded) |
-| 0.70 compliance | local pass; remote pending | not established remotely |
+| validation accuracy | 0.6766666667 | 0.7291666667 |
+| held-out accuracy | 0.7000 (350/500) | 0.7480 |
+| weighted F1 | 0.6988602225 | 0.7473569388 |
+| Actions run | [32459739043](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32459739043) | [32460997570](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460997570) |
+| 0.70 compliance | pass; four jobs green | pass; four jobs green |
 
-Step 3 was triggered by the pointer-only commit `1748341334a78e688dcc270d32d750e900724612`.
+Step 2 used commit `e2e84fae911ece932df7047a59254331d59e4567`.
+Step 3 was triggered by the pointer-only commit `7372e90cd23db7e98a1ace1ec7643d058e4d07ea`.
+
+Historical `0.68` runs are superseded intermediate evidence only.

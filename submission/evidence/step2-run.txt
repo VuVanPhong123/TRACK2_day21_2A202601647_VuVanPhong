@@ -1,10 +1,12 @@
-Historical Step 2 green run: 32452594273 (superseded 0.68 gate)
-URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452594273
-Commit: 517eafef0c3d6fe01304e8c9548254a022b19f76
-Event: push
+Final Step 2 green run (successful attempt 2): 32459739043
+URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32459739043
+Commit: e2e84fae911ece932df7047a59254331d59e4567
+Dataset: train_phase1.csv=2998 rows; eval.csv=500 rows
 Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
-Model: random_forest; validation accuracy=0.7067; held-out accuracy=0.6820; weighted F1=0.6808443913
-Gate: 0.6820 >= 0.68; not final 0.70 compliance
+Threshold: EVAL_THRESHOLD=0.70
+Model: random_forest; feature families=density_alcohol+sulfur_alcohol
+Metrics: accuracy=0.7000 (350/500); weighted F1=0.6988602224515537
+Validation metrics: accuracy=0.6766666666666666; weighted F1=0.673984110802183
 Train artifact: candidate-model (models/model.pkl and outputs/metrics.json)
-Promotion: Deploy downloaded candidate-model and uploaded models/latest/model.pkl only after Eval success.
-Health check: passed on attempt 2.
+Promotion: Deploy promoted the passing candidate only after Eval success.
+Serving: feature_engineering.py and src/serve.py were uploaded to the required VM paths and the active mlops-serve directory.

@@ -1,7 +1,9 @@
-Historical restored-green run: 32453041890 (superseded 0.68 gate)
-URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453041890
-Commit: d3938d9fd7e2249b2fcce1137387185af6dc8b0a
+Final restored-green run: 32460663067
+URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460663067
+Commit: 792ade4d51e939e63114c8be15b2bf1684ff1b9a
 Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
-Accuracy=0.6820; weighted F1=0.6808443913
-Gate: 0.6820 >= 0.68; not final 0.70 compliance
-Health check: passed on attempt 2.
+Threshold: EVAL_THRESHOLD=0.70
+Accuracy=0.7000 (350/500); weighted F1=0.6988602224515537
+Feature families=density_alcohol+sulfur_alcohol
+GCS generation after restored deployment: 1787299007344804
+API after restore: /health=200; /predict=200; invalid length=400
