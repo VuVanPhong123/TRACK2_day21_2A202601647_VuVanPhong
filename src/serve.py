@@ -1,37 +1,33 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from google.cloud import storage
-import joblib
 import os
+from pathlib import Path
 
-app = FastAPI()
+import joblib
+from fastapi import FastAPI, HTTPException
+from google.cloud import storage
+from pydantic import BaseModel
+
+app = FastAPI(title="Wine Quality Inference API")
 
 GCS_BUCKET = os.environ["GCS_BUCKET"]
 GCS_MODEL_KEY = "models/latest/model.pkl"
-MODEL_PATH = os.path.expanduser("~/models/model.pkl")
+MODEL_PATH = Path(os.path.expanduser("~/models/model.pkl"))
+EXPECTED_FEATURE_COUNT = 12
+LABELS = {0: "thap", 1: "trung_binh", 2: "cao"}
 
 
-def download_model():
-    """
-    Tai file model.pkl tu GCS ve may khi server khoi dong.
+def download_model() -> None:
+    """Download the latest model artifact from GCS to the VM."""
+    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    Ham nay duoc goi mot lan khi module duoc import. Su dung
-    GOOGLE_APPLICATION_CREDENTIALS de xac thuc (duoc dat trong systemd service).
-    """
-    # TODO 1: Tao storage.Client()
-    # client = storage.Client()
+    client = storage.Client()
+    bucket = client.bucket(GCS_BUCKET)
+    blob = bucket.blob(GCS_MODEL_KEY)
+    blob.download_to_filename(str(MODEL_PATH))
 
-    # TODO 2: Lay bucket va blob tuong ung
-    # bucket = client.bucket(GCS_BUCKET)
-    # blob   = bucket.blob(GCS_MODEL_KEY)
-
-    # TODO 3: Tai file model xuong may
-    # blob.download_to_filename(MODEL_PATH)
-
-    # TODO 4: In thong bao thanh cong
-    # print("Model da duoc tai xuong tu GCS.")
-
-    pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
+    print(
+        f"Downloaded gs://{GCS_BUCKET}/{GCS_MODEL_KEY} "
+        f"to {MODEL_PATH}"
+    )
 
 
 download_model()
@@ -44,42 +40,30 @@ class PredictRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    """
-    Endpoint kiem tra suc khoe server.
-    GitHub Actions goi endpoint nay sau khi deploy de xac nhan server dang chay.
-
-    Tra ve: {"status": "ok"}
-    """
-    # TODO 5: Tra ve dict {"status": "ok"}
-    pass  # xoa dong nay sau khi hoan thanh
+    """Return service health for deployment verification."""
+    return {"status": "ok"}
 
 
 @app.post("/predict")
 def predict(req: PredictRequest):
-    """
-    Endpoint suy luan chinh.
+    """Predict the Wine Quality class for exactly 12 numeric features."""
+    if len(req.features) != EXPECTED_FEATURE_COUNT:
+        raise HTTPException(
+            status_code=400,
+            detail="Expected 12 features (wine quality)",
+        )
 
-    Dau vao : JSON {"features": [f1, f2, ..., f12]}
-    Dau ra  : JSON {"prediction": <0|1|2>, "label": <"thap"|"trung_binh"|"cao">}
+    prediction = int(model.predict([req.features])[0])
+    if prediction not in LABELS:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Model returned unsupported class: {prediction}",
+        )
 
-    Thu tu 12 dac trung (khop voi thu tu trong FEATURE_NAMES cua test):
-        fixed_acidity, volatile_acidity, citric_acid, residual_sugar,
-        chlorides, free_sulfur_dioxide, total_sulfur_dioxide, density,
-        pH, sulphates, alcohol, wine_type
-    """
-    # TODO 6: Kiem tra so luong dac trung.
-    # Neu len(req.features) != 12, raise HTTPException(status_code=400, ...)
-
-    # TODO 7: Goi model.predict([req.features]) de lay ket qua du doan.
-    # pred = model.predict(...)
-
-    # TODO 8: Tra ve dict chua "prediction" (int) va "label" (string).
-    # Nhan tuong ung: 0 -> "thap", 1 -> "trung_binh", 2 -> "cao"
-    # return {"prediction": ..., "label": ...}
-
-    pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
+    return {"prediction": prediction, "label": LABELS[prediction]}
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

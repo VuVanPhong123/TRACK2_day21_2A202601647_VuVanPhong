@@ -1,14 +1,33 @@
+import json
+import os
+from pathlib import Path
+
+import joblib
 import mlflow
 import mlflow.sklearn
 import pandas as pd
 import yaml
-import json
-import joblib
-import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score
 
 EVAL_THRESHOLD = 0.70
+TARGET_COLUMN = "target"
+DEFAULT_TRACKING_URI = "sqlite:///mlflow.db"
+EXPERIMENT_NAME = "wine-quality-random-forest"
+
+
+def _load_dataset(path: str) -> pd.DataFrame:
+    """Load a CSV dataset and validate the target column."""
+    dataset_path = Path(path)
+    if not dataset_path.exists():
+        raise FileNotFoundError(f"Dataset not found: {dataset_path}")
+
+    df = pd.read_csv(dataset_path)
+    if TARGET_COLUMN not in df.columns:
+        raise ValueError(
+            f"Dataset {dataset_path} must contain target column '{TARGET_COLUMN}'."
+        )
+    return df
 
 
 def train(
@@ -16,69 +35,62 @@ def train(
     data_path: str = "data/train_phase1.csv",
     eval_path: str = "data/eval.csv",
 ) -> float:
-    """
-    Huan luyen mo hinh va ghi nhan ket qua vao MLflow.
+    """Train a RandomForest model, track metrics, and persist CI artifacts."""
+    if not isinstance(params, dict) or not params:
+        raise ValueError("params must be a non-empty dictionary")
 
-    Tham so:
-        params     : dict chua cac sieu tham so cho RandomForestClassifier.
-        data_path  : duong dan den file du lieu huan luyen.
-        eval_path  : duong dan den file du lieu danh gia.
+    df_train = _load_dataset(data_path)
+    df_eval = _load_dataset(eval_path)
 
-    Tra ve:
-        accuracy (float): do chinh xac tren tap danh gia.
-    """
+    X_train = df_train.drop(columns=[TARGET_COLUMN])
+    y_train = df_train[TARGET_COLUMN]
+    X_eval = df_eval.drop(columns=[TARGET_COLUMN])
+    y_eval = df_eval[TARGET_COLUMN]
 
-    # TODO 1: Doc du lieu huan luyen va danh gia
-    # df_train = ...
-    # df_eval  = ...
+    if list(X_train.columns) != list(X_eval.columns):
+        raise ValueError("Training and evaluation feature columns must match exactly.")
 
-    # TODO 2: Tach dac trung (X) va nhan (y)
-    # X_train = df_train.drop(columns=["target"])
-    # y_train = ...
-    # X_eval  = ...
-    # y_eval  = ...
+    tracking_uri = os.getenv("MLFLOW_TRACKING_URI", DEFAULT_TRACKING_URI)
+    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_experiment(EXPERIMENT_NAME)
 
-    with mlflow.start_run():
+    run_name = (
+        f"rf_n{params.get('n_estimators', 'default')}"
+        f"_depth{params.get('max_depth', 'default')}"
+        f"_split{params.get('min_samples_split', 'default')}"
+    )
 
-        # TODO 3: Ghi nhan cac sieu tham so
-        # mlflow.log_params(...)
+    with mlflow.start_run(run_name=run_name):
+        mlflow.log_params(params)
 
-        # TODO 4: Khoi tao va huan luyen RandomForestClassifier
-        # Goi y: su dung random_state=42 de dam bao tinh tai tao
-        # model = RandomForestClassifier(...)
-        # model.fit(...)
+        model = RandomForestClassifier(**params, random_state=42)
+        model.fit(X_train, y_train)
 
-        # TODO 5: Du doan tren tap danh gia va tinh chi so
-        # preds = ...
-        # acc   = accuracy_score(...)
-        # f1    = f1_score(..., average="weighted")
+        predictions = model.predict(X_eval)
+        accuracy = float(accuracy_score(y_eval, predictions))
+        f1 = float(f1_score(y_eval, predictions, average="weighted"))
 
-        # TODO 6: Ghi nhan chi so vao MLflow
-        # mlflow.log_metric("accuracy", ...)
-        # mlflow.log_metric("f1_score", ...)
-        # mlflow.sklearn.log_model(model, "model")
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_metric("f1_score", f1)
+        mlflow.sklearn.log_model(model, "model")
 
-        # TODO 7: In ket qua ra man hinh
-        # print(f"Accuracy: {acc:.4f} | F1: {f1:.4f}")
+        outputs_dir = Path("outputs")
+        models_dir = Path("models")
+        outputs_dir.mkdir(parents=True, exist_ok=True)
+        models_dir.mkdir(parents=True, exist_ok=True)
 
-        # TODO 8: Luu metrics ra file outputs/metrics.json
-        # File nay duoc doc boi GitHub Actions o Buoc 2
-        # os.makedirs("outputs", exist_ok=True)
-        # with open("outputs/metrics.json", "w") as f:
-        #     json.dump({"accuracy": acc, "f1_score": f1}, f)
+        metrics = {"accuracy": accuracy, "f1_score": f1}
+        with (outputs_dir / "metrics.json").open("w", encoding="utf-8") as f:
+            json.dump(metrics, f, indent=2)
 
-        # TODO 9: Luu mo hinh ra file models/model.pkl
-        # File nay duoc upload len GCS o Buoc 2
-        # os.makedirs("models", exist_ok=True)
-        # joblib.dump(model, "models/model.pkl")
+        joblib.dump(model, models_dir / "model.pkl")
 
-        pass  # xoa dong nay sau khi hoan thanh tat ca TODO ben tren
+        print(f"Accuracy: {accuracy:.4f} | F1: {f1:.4f}")
 
-    # TODO 10: Tra ve acc
-    # return acc
+    return accuracy
 
 
 if __name__ == "__main__":
-    with open("params.yaml") as f:
-        params = yaml.safe_load(f)
-    train(params)
+    with open("params.yaml", encoding="utf-8") as f:
+        model_params = yaml.safe_load(f)
+    train(model_params)
