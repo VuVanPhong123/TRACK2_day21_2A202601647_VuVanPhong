@@ -154,6 +154,16 @@ jobs:
           target: "/home/${{ secrets.VM_USER }}/src"
           strip_components: 1
 
+      - name: Upload serving entrypoint to active service directory
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "src/serve.py"
+          target: "/home/${{ secrets.VM_USER }}/mlops-serve/src"
+          strip_components: 1
+
       - name: Upload feature module to VM
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -162,6 +172,15 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           source: "feature_engineering.py"
           target: "/home/${{ secrets.VM_USER }}"
+
+      - name: Upload feature module to active service directory
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "feature_engineering.py"
+          target: "/home/${{ secrets.VM_USER }}/mlops-serve"
 
       - name: Authenticate to Google Cloud with GitHub OIDC
         uses: google-github-actions/auth@v2
