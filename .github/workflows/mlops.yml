@@ -6,6 +6,7 @@ on:
     paths:
       - "data/**.dvc"
       - "src/**.py"
+      - "feature_engineering.py"
       - "tests/**.py"
       - "params.yaml"
       - "requirements.txt"
@@ -160,7 +161,7 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           source: "feature_engineering.py"
-          target: "/home/${{ secrets.VM_USER }}/src"
+          target: "/home/${{ secrets.VM_USER }}"
 
       - name: Authenticate to Google Cloud with GitHub OIDC
         uses: google-github-actions/auth@v2

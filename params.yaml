@@ -1,6 +1,5 @@
-# Candidate selected from a train_phase1 validation split (test_size=0.2,
-# stratified, random_state=42). The held-out eval.csv is scored only after
-# this candidate is fixed.
+# Final RandomForest configuration selected from the local Step-1
+# experimentation workflow and reproduced deterministically before CI.
 model_type: random_forest
 feature_engineering:
   families:
