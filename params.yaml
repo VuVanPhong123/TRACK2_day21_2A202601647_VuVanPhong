@@ -1,19 +1,15 @@
-# Final RandomForest configuration selected from the local Step-1
-# experimentation workflow and reproduced deterministically before CI.
+# Temporary intentionally weak RandomForest configuration for eval-gate evidence.
 model_type: random_forest
 feature_engineering:
   families:
     - density_alcohol
     - sulfur_alcohol
 model_params:
-  n_estimators: 300
-  max_depth: 30
+  n_estimators: 10
+  max_depth: 3
   min_samples_split: 2
   max_features: sqrt
-  class_weight:
-    0: 1.25
-    1: 0.75
-    2: 0.75
+  class_weight: null
   n_jobs: -1
   random_state: 42
 validation:
