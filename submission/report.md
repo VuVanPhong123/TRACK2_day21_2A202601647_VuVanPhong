@@ -17,6 +17,6 @@ Run tốt nhất: `bd9db57d9a8646c98b89873811022f8c`; accuracy `0.694`, F1 weigh
 
 ## Bước 2 và Bước 3
 
-Chưa thể chạy trung thực các phần cloud: account GCP hiện authenticated nhưng project active là `track2-day16-2a202601647` (project của Day 16), không có project Day 21 phù hợp để tạo bucket/VM. Repo cũng chưa có GitHub Actions secrets và chưa có run nào. Vì vậy chưa có Step 2/Step 3 metrics, VM endpoint, GCS model, hay Actions run ID để báo cáo.
+Đã dispatch một Actions run thật `32447145525`. Unit Test thành công; Train dừng tại bước xác thực vì repository chưa có secret `CLOUD_CREDENTIALS`, nên Eval/Deploy chưa chạy. Account GCP hiện authenticated nhưng project active là `track2-day16-2a202601647` (project của Day 16), không có project Day 21 phù hợp để tạo bucket/VM. Vì vậy chưa có Step 2/Step 3 metrics, VM endpoint hoặc GCS model.
 
 Khó khăn chính là accuracy của RandomForest trên held-out dataset này chưa đạt `0.70`, cùng với thiếu project GCP riêng cho lab. Đã pin `setuptools<82` vì MLflow 2.13 cần `pkg_resources`.

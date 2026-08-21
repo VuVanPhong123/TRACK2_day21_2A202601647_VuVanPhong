@@ -1,0 +1,15 @@
+GitHub Actions run: 32447145525
+URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32447145525
+Event: workflow_dispatch
+Commit: 79587e99dac137e36d1030adcc4d343079c8f186
+
+Observed jobs:
+- Unit Test: success
+- Train: failure
+- Eval: skipped
+- Deploy: skipped
+
+Failed step: Train / Authenticate to Google Cloud Storage
+Safe error summary: Missing required GitHub secret: CLOUD_CREDENTIALS
+
+No secret value is included here.
