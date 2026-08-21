@@ -2,6 +2,10 @@
 # stratified, random_state=42). The held-out eval.csv is scored only after
 # this candidate is fixed.
 model_type: random_forest
+feature_engineering:
+  families:
+    - density_alcohol
+    - sulfur_alcohol
 model_params:
   n_estimators: 300
   max_depth: 30

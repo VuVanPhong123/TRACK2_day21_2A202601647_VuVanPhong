@@ -2,7 +2,7 @@
 
 Repository: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
 
-The authoritative assignment eval gate is `0.70`. The earlier `0.68` runs below are superseded intermediate evidence and must not be presented as final compliance evidence. The current bounded RandomForest search reached `0.6960`, so no new compliant Step 2/Step 3 run was pushed.
+The authoritative assignment eval gate is `0.70`. The earlier `0.68` runs below are superseded intermediate evidence and must not be presented as final compliance evidence. The local blocker is now resolved: the RandomForest plus deterministic `density_alcohol` and `sulfur_alcohol` feature families reaches `0.7000` (`350/500`). No remote Step 2 run has been pushed yet.
 
 ## Real resources
 
@@ -21,6 +21,13 @@ The authoritative assignment eval gate is `0.70`. The earlier `0.68` runs below 
 - Step 3 data-trigger: [run 32453289515](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453289515) — automatically triggered by commit `1748341334a78e688dcc270d32d750e900724612`; all 4 jobs green; accuracy `0.7480`, F1 `0.7471`.
 
 The listed Actions runs used the superseded `0.68` gate and are not final compliance evidence.
+
+## Current local candidate
+
+- Model: `RandomForestClassifier` with `n_estimators=300`, `max_depth=30`, `random_state=42`, and the existing class weights.
+- Feature pipeline: raw 12 inputs plus `alcohol_density`, `alcohol_density_gap`, and `total_sulfur_alcohol_ratio`.
+- Phase-1 local result: accuracy `0.7000`, weighted F1 `0.6988602225`, `350/500` correct.
+- Remote Step 2, negative gate, restore, and Step 3 evidence remain pending the next authorized push.
 
 ## API evidence
 

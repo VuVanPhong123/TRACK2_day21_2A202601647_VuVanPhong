@@ -1,6 +1,7 @@
 import json
 import os
 
+import joblib
 import numpy as np
 import pandas as pd
 
@@ -8,13 +9,13 @@ from src.train import train
 
 
 FEATURE_NAMES = [
-    "fixed_acidity",
-    "volatile_acidity",
-    "citric_acid",
-    "residual_sugar",
+    "fixed acidity",
+    "volatile acidity",
+    "citric acid",
+    "residual sugar",
     "chlorides",
-    "free_sulfur_dioxide",
-    "total_sulfur_dioxide",
+    "free sulfur dioxide",
+    "total sulfur dioxide",
     "density",
     "pH",
     "sulphates",
@@ -85,3 +86,27 @@ def test_model_file_created(tmp_path):
     )
 
     assert os.path.exists("models/model.pkl")
+
+
+def test_feature_engineering_pipeline_is_serialized(tmp_path):
+    """The configured deterministic feature families remain in the saved pipeline."""
+    train_path, eval_path = _make_temp_data(tmp_path)
+    train(
+        {
+            "model_type": "random_forest",
+            "feature_engineering": {
+                "families": ["density_alcohol", "sulfur_alcohol"],
+            },
+            "model_params": {"n_estimators": 10, "max_depth": 3},
+        },
+        data_path=train_path,
+        eval_path=eval_path,
+    )
+
+    model = joblib.load("models/model.pkl")
+    assert model.named_steps["feature_engineering"].families == (
+        "density_alcohol",
+        "sulfur_alcohol",
+    )
+    eval_features = pd.read_csv(eval_path).drop(columns=["target"])
+    assert len(model.predict(eval_features)) == 40

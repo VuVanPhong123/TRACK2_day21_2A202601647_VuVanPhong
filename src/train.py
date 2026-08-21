@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from pathlib import Path
 
 import joblib
@@ -15,6 +16,12 @@ from sklearn.ensemble import (
 )
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+from feature_engineering import WineFeatureEngineer
 
 EVAL_THRESHOLD = 0.70
 TARGET_COLUMN = "target"
@@ -43,7 +50,7 @@ def _load_dataset(path: str) -> pd.DataFrame:
     return df
 
 
-def _normalise_config(params: dict) -> tuple[str, dict, dict]:
+def _normalise_config(params: dict) -> tuple[str, dict, dict, tuple[str, ...]]:
     """Support the original flat RF config and the extensible model schema."""
     if not isinstance(params, dict) or not params:
         raise ValueError("params must be a non-empty dictionary")
@@ -52,10 +59,12 @@ def _normalise_config(params: dict) -> tuple[str, dict, dict]:
         model_type = str(params["model_type"])
         model_params = dict(params.get("model_params", {}))
         validation = dict(params.get("validation", {}))
+        feature_engineering = dict(params.get("feature_engineering", {}))
     else:
         model_type = "random_forest"
         model_params = dict(params)
         validation = {}
+        feature_engineering = {}
 
     if model_type not in MODEL_TYPES:
         supported = ", ".join(sorted(MODEL_TYPES))
@@ -64,12 +73,26 @@ def _normalise_config(params: dict) -> tuple[str, dict, dict]:
     validation.setdefault("test_size", 0.2)
     validation.setdefault("random_state", 42)
     model_params.setdefault("random_state", 42)
-    return model_type, model_params, validation
+    feature_families = tuple(feature_engineering.get("families", ()))
+    return model_type, model_params, validation, feature_families
 
 
-def _build_model(model_type: str, model_params: dict):
+def _build_model(
+    model_type: str,
+    model_params: dict,
+    feature_families: tuple[str, ...] = (),
+):
     """Build a supported sklearn estimator from the tracked configuration."""
-    return MODEL_TYPES[model_type](**model_params)
+    estimator = MODEL_TYPES[model_type](**model_params)
+    return Pipeline(
+        [
+            (
+                "feature_engineering",
+                WineFeatureEngineer(families=feature_families),
+            ),
+            ("estimator", estimator),
+        ]
+    )
 
 
 def train(
@@ -78,7 +101,7 @@ def train(
     eval_path: str = "data/eval.csv",
 ) -> float:
     """Select with a train-only validation split, then fit and score the candidate."""
-    model_type, model_params, validation = _normalise_config(params)
+    model_type, model_params, validation, feature_families = _normalise_config(params)
 
     df_train = _load_dataset(data_path)
     df_eval = _load_dataset(eval_path)
@@ -120,8 +143,9 @@ def train(
                 "validation.random_state": validation["random_state"],
             }
         )
+        mlflow.log_param("feature_engineering.families", "+".join(feature_families) or "raw_only")
 
-        validation_model = _build_model(model_type, model_params)
+        validation_model = _build_model(model_type, model_params, feature_families)
         validation_model.fit(X_fit, y_fit)
         validation_predictions = validation_model.predict(X_validation)
         validation_accuracy = float(
@@ -131,7 +155,7 @@ def train(
             f1_score(y_validation, validation_predictions, average="weighted")
         )
 
-        model = _build_model(model_type, model_params)
+        model = _build_model(model_type, model_params, feature_families)
         model.fit(X_train, y_train)
 
         predictions = model.predict(X_eval)
@@ -156,6 +180,8 @@ def train(
             "validation_f1_score": validation_f1,
             "model_type": model_type,
             "eval_threshold": EVAL_THRESHOLD,
+            "feature_families": list(feature_families),
+            "feature_count": int(model.named_steps["feature_engineering"].transform(X_train).shape[1]),
         }
         with (outputs_dir / "metrics.json").open("w", encoding="utf-8") as f:
             json.dump(metrics, f, indent=2)

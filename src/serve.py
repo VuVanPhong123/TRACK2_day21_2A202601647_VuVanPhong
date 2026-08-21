@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import joblib
@@ -6,9 +7,14 @@ from fastapi import FastAPI, HTTPException
 from google.cloud import storage
 from pydantic import BaseModel
 
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+from feature_engineering import WineFeatureEngineer
+
 app = FastAPI(title="Wine Quality Inference API")
 
-GCS_BUCKET = os.environ["GCS_BUCKET"]
+GCS_BUCKET = os.getenv("GCS_BUCKET")
 GCS_MODEL_KEY = "models/latest/model.pkl"
 MODEL_PATH = Path(os.path.expanduser("~/models/model.pkl"))
 EXPECTED_FEATURE_COUNT = 12
@@ -17,6 +23,8 @@ LABELS = {0: "thap", 1: "trung_binh", 2: "cao"}
 
 def download_model() -> None:
     """Download the latest model artifact from GCS to the VM."""
+    if not GCS_BUCKET:
+        raise RuntimeError("GCS_BUCKET must be set before loading the serving model")
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     client = storage.Client()
@@ -30,8 +38,10 @@ def download_model() -> None:
     )
 
 
-download_model()
-model = joblib.load(MODEL_PATH)
+model = None
+if GCS_BUCKET:
+    download_model()
+    model = joblib.load(MODEL_PATH)
 
 
 class PredictRequest(BaseModel):
@@ -47,6 +57,8 @@ def health():
 @app.post("/predict")
 def predict(req: PredictRequest):
     """Predict the Wine Quality class for exactly 12 numeric features."""
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model is not loaded")
     if len(req.features) != EXPECTED_FEATURE_COUNT:
         raise HTTPException(
             status_code=400,
@@ -66,4 +78,7 @@ def predict(req: PredictRequest):
 if __name__ == "__main__":
     import uvicorn
 
+    if model is None:
+        download_model()
+        model = joblib.load(MODEL_PATH)
     uvicorn.run(app, host="0.0.0.0", port=8000)

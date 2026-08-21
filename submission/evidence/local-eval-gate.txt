@@ -1,3 +1,3 @@
 Authoritative local threshold: 0.70.
-Bounded Phase-1 RandomForest search: 70 fits plus two narrow tree-count checks; best accuracy=0.6960, weighted F1=0.6942, gate=BLOCKED.
-The previous 0.68-gate local candidate (accuracy=0.6820) is superseded and is not presented as final evidence.
+Targeted RF feature pipeline: families=density_alcohol+sulfur_alcohol; accuracy=0.7000; weighted F1=0.6988602225; correct=350/500; gate=PASS locally.
+Production path reproduced the same metrics and model SHA-256 on two consecutive runs. Remote Actions evidence is pending; historical 0.68 runs remain superseded.

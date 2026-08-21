@@ -1,0 +1,85 @@
+{
+  "rows_train": 2998,
+  "rows_eval": 500,
+  "accuracy": 0.696,
+  "weighted_f1": 0.6942115853901583,
+  "correct_count": 348,
+  "error_count": 152,
+  "confusion_matrix_labels_0_1_2": [
+    [
+      132,
+      40,
+      1
+    ],
+    [
+      50,
+      161,
+      16
+    ],
+    [
+      1,
+      44,
+      55
+    ]
+  ],
+  "params": {
+    "n_estimators": 300,
+    "max_depth": 30,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1,
+    "max_features": "sqrt",
+    "criterion": "gini",
+    "bootstrap": true,
+    "class_weight": {
+      "0": 1.25,
+      "1": 0.75,
+      "2": 0.75
+    },
+    "n_jobs": -1,
+    "random_state": 42
+  },
+  "lowest_confidence_error_indices": [
+    311,
+    432,
+    128,
+    383,
+    475,
+    124,
+    108,
+    468,
+    442,
+    208,
+    286,
+    429,
+    279,
+    127,
+    314,
+    384,
+    204,
+    402,
+    323,
+    158
+  ],
+  "lowest_margin_error_indices": [
+    475,
+    468,
+    311,
+    337,
+    279,
+    402,
+    170,
+    77,
+    442,
+    9,
+    363,
+    272,
+    124,
+    204,
+    286,
+    314,
+    384,
+    205,
+    120,
+    108
+  ]
+}

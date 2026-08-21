@@ -1,6 +1,7 @@
 Experiment: wine-quality-random-forest
 Step 1 evidence: 20 original RandomForest runs retained.
-Current local experiment total after unit-test and final-candidate runs: 25.
+Current local experiment total after QA and feature-pipeline runs: 40.
+Latest local feature-pipeline run: 9c9f4c16a6c14da0b28494e10324b933, accuracy=0.700, weighted F1=0.6988602225, feature families=density_alcohol+sulfur_alcohol.
 Original best Step 1 run: c661a0eccc7b4daa806276f4f7eba402, accuracy=0.694, weighted F1=0.6922020058778373.
 Validation-selected Step 2 local run: 3c65065e2fad4618a00d81535112c996, validation accuracy=0.7066666667, held-out accuracy=0.682, weighted F1=0.6808443913.
 Step 3 local run: cad66ab7925a4f9dbc9ec87868080036, validation accuracy=0.7233333333, held-out accuracy=0.748, weighted F1=0.7470636556.

@@ -102,6 +102,8 @@ jobs:
           path: |
             models/model.pkl
             outputs/metrics.json
+            src/serve.py
+            feature_engineering.py
           if-no-files-found: error
           retention-days: 7
 
@@ -140,6 +142,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: candidate-model
+
+      - name: Upload serving entrypoint to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "src/serve.py"
+          target: "/home/${{ secrets.VM_USER }}/src"
+          strip_components: 1
+
+      - name: Upload feature module to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "feature_engineering.py"
+          target: "/home/${{ secrets.VM_USER }}/src"
 
       - name: Authenticate to Google Cloud with GitHub OIDC
         uses: google-github-actions/auth@v2

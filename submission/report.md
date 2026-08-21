@@ -4,7 +4,7 @@
 
 Model type: `random_forest` (`sklearn.ensemble.RandomForestClassifier`).
 
-Best bounded-search RandomForest candidate (not rubric-passing):
+Current local Step 2 candidate:
 
 ```yaml
 n_estimators: 300
@@ -17,6 +17,7 @@ random_state: 42
 ```
 
 The authoritative gate is `0.70`. The bounded local search used exactly 2998 Phase-1 rows and 500 eval rows, reproduced the historical baseline at `0.6940 / 0.6922020059`, and found a best candidate at held-out accuracy `0.6960` and weighted F1 `0.6942`. The search was stopped at its bounded budget; no metric was rounded or fabricated.
+The targeted feature-family pass then added `alcohol_density`, `alcohol_density_gap`, and `total_sulfur_alcohol_ratio` through a shared serialized pipeline. The final local candidate reached accuracy `0.7000` (`350/500`) and weighted F1 `0.6988602225`. The selected families are `density_alcohol` and `sulfur_alcohol`; no broad search or random-state tuning was used.
 
 Step 1 retains the original 20 RandomForest MLflow runs. The prior best was run `c661a0eccc7b4daa806276f4f7eba402` at accuracy `0.6940`, F1 `0.6922020059`. The validation-selected candidate is separately logged with model type and validation metrics.
 
@@ -47,9 +48,9 @@ VM `track2-day21-mlops-serve` runs `mlops-serve.service` with an attached Day21 
 invalid feature length: HTTP 400
 ```
 
-## Current blocker
+## Remote evidence pending
 
-The bounded RandomForest search exhausted without reaching `accuracy >= 0.70`. The repository is not submission-complete under the authoritative assignment requirement; see the untracked root `job.txt` for the exact search record and handoff.
+The local Step-2 blocker is resolved and the production path reproduces the passing result twice with identical metrics and model SHA-256. No push, GitHub Actions run, negative gate, restored-green run, or new Step 3 run was performed in this local-only pass; see the untracked root `job.txt` for the exact handoff.
 
 ## Security and evidence
 
