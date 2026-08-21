@@ -67,10 +67,17 @@ jobs:
           create_credentials_file: true
           export_environment_variables: true
 
-      - name: Configure DVC credential path
+      - name: Verify federated Google credentials for DVC
         run: |
           set -euo pipefail
-          dvc remote modify --local myremote credentialpath "$GOOGLE_APPLICATION_CREDENTIALS"
+          test -f "$GOOGLE_APPLICATION_CREDENTIALS"
+          python - <<'PY'
+          import google.auth
+
+          credentials, project = google.auth.default()
+          print(f"Federated credentials loaded for project {project or 'from workflow context'}")
+          print(f"Credential class: {type(credentials).__name__}")
+          PY
 
       - name: Pull training data with DVC
         run: dvc pull data/train_phase1.csv.dvc data/eval.csv.dvc
