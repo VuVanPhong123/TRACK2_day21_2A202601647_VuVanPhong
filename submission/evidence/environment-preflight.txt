@@ -1,6 +1,10 @@
-GCP account: authenticated as phongbeo124@gmail.com
-Active GCP project: track2-day16-2a202601647 (not used; unrelated Day 16 project)
-Accessible project list: no project identified as the Day 21 lab project
-GitHub target repository: VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
-GitHub Actions secrets: none listed
-GitHub Actions run observed: 32447145525 (Train blocked by missing CLOUD_CREDENTIALS)
+Prompt-injection audit: repository scan found no active injection or credential material; the only private-key match was an instructional example in tasks/buoc-2.md.
+GCP account: phongbeo124@gmail.com
+Active GCP project: track2-day16-2a202601647 (explicitly authorized for this Day21 lab)
+Bucket inventory before creation: no buckets
+VM inventory before creation: no instances
+Service-account inventory before creation: only the default compute service account
+Firewall inventory before creation: only default rules; no track2-day21 rule
+Created isolated resources: track2-day21-2a202601647-mlops-20260821, track2-day21-mlops-sa, track2-day21-mlops-serve, track2-day21-allow-8000, track2-day21-github-pool, track2-day21-github
+GitHub repository: VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
+GitHub auth: OIDC Workload Identity Federation; service-account key creation was denied by organization policy and no key was persisted.

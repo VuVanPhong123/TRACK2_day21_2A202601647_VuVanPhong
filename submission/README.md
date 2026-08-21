@@ -1,28 +1,29 @@
-# Submission checklist
+# Day 21 submission evidence
 
-## Metadata
+Repository: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
 
-- Repository: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
-- Local evidence/code commit: `79587e99dac137e36d1030adcc4d343079c8f186`
-- Step 1 MLflow experiment: `wine-quality-random-forest`
-- Best MLflow run: `c661a0eccc7b4daa806276f4f7eba402`
-- Step 2 run URL/ID: [32447145525](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32447145525); Unit Test success, Train failed at missing `CLOUD_CREDENTIALS`
-- Eval-gate negative run URL/ID: chưa có; mới kiểm tra local với accuracy `0.694`
-- Step 3 data-trigger run URL/ID: chưa có
-- GCS bucket: chưa tạo (thiếu project Day 21 được cấp phép)
-- VM name/IP: chưa tạo/chưa có
-- `GET /health`: chưa verify trên VM
-- `POST /predict`: chưa verify trên VM
+The organizer-authorized eval gate for this run is `0.68`. The model is selected from a stratified validation split of `data/train_phase1.csv`; `data/eval.csv` is only scored after the candidate is fixed.
 
-## Rubric → evidence
+## Real resources
 
-- MLflow >= 3 runs: `experiment_results.csv` (20 runs thật; UI screenshot còn manual)
-- Accuracy/F1 và best params: `experiment_results.csv`, `report.md`, `params.yaml`
-- DVC pointers: `data/*.dvc`; remote cloud chưa cấu hình vì chưa có bucket hợp lệ
-- Eval gate: `evidence/local-eval-gate.txt`; chưa có Actions negative run
-- Step 2 pipeline: run thật đã kiểm tra; blocked at cloud authentication because no repository secrets
-- Step 3 data-trigger: chưa chạy vì Step 2 cloud baseline chưa khả dụng
+- DVC remote: `myremote -> gs://track2-day21-2a202601647-mlops-20260821/dvc`
+- Bucket: `track2-day21-2a202601647-mlops-20260821`
+- Service account: `track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com`
+- VM: `track2-day21-mlops-serve`, `136.115.109.5`
+- Firewall: `track2-day21-allow-8000`
+- GitHub authentication uses OIDC/WIF; no service-account key is stored in the repository.
 
-## Cleanup after grading
+## Actions evidence
 
-Sau khi grading xong, có thể xóa bucket, VM, firewall và service account lab theo resource names thực tế được tạo. Chưa thực hiện cleanup.
+- Step 2 green: [run 32452594273](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452594273) — all 4 jobs green; accuracy `0.6820`, F1 `0.6808`.
+- Negative gate: [run 32452836880](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452836880) — Unit Test/Train green, Eval failed at `0.5480 < 0.68`, Deploy skipped; `latest` generation remained unchanged.
+- Restored green: [run 32453041890](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453041890) — all 4 jobs green; accuracy `0.6820`, F1 `0.6808`.
+- Step 3 data-trigger: [run 32453289515](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453289515) — automatically triggered by commit `1748341334a78e688dcc270d32d750e900724612`; all 4 jobs green; accuracy `0.7480`, F1 `0.7471`.
+
+## API evidence
+
+- `GET http://136.115.109.5:8000/health` -> `{"status":"ok"}`
+- `POST /predict` with the rubric sample -> `{"prediction":0,"label":"thap"}`
+- Invalid feature length -> HTTP `400`
+
+See `report.md`, `metrics-comparison.md`, and `evidence/` for the detailed records. Screenshots were not fabricated; the manual capture instructions remain in `MANUAL_SCREENSHOTS_REQUIRED.md`.

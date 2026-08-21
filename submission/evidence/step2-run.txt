@@ -1,15 +1,10 @@
-GitHub Actions run: 32447145525
-URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32447145525
-Event: workflow_dispatch
-Commit: 79587e99dac137e36d1030adcc4d343079c8f186
-
-Observed jobs:
-- Unit Test: success
-- Train: failure
-- Eval: skipped
-- Deploy: skipped
-
-Failed step: Train / Authenticate to Google Cloud Storage
-Safe error summary: Missing required GitHub secret: CLOUD_CREDENTIALS
-
-No secret value is included here.
+Step 2 green run: 32452594273
+URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452594273
+Commit: 517eafef0c3d6fe01304e8c9548254a022b19f76
+Event: push
+Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
+Model: random_forest; validation accuracy=0.7067; held-out accuracy=0.6820; weighted F1=0.6808443913
+Gate: 0.6820 >= 0.68
+Train artifact: candidate-model (models/model.pkl and outputs/metrics.json)
+Promotion: Deploy downloaded candidate-model and uploaded models/latest/model.pkl only after Eval success.
+Health check: passed on attempt 2.

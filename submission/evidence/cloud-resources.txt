@@ -1,0 +1,12 @@
+Project: track2-day16-2a202601647
+Bucket: track2-day21-2a202601647-mlops-20260821
+DVC remote: myremote = gs://track2-day21-2a202601647-mlops-20260821/dvc
+DVC verification: initial dvc push reported 3 files pushed; Step 3 pointer push reported 1 file pushed.
+GCS objects: dvc/files/md5/58/53e7711c78f02286e65fca6cb6e124 and models/latest/model.pkl
+Latest model object: models/latest/model.pkl; final generation=1787292753496235; size=21661057 bytes
+Service account: track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com
+Bucket IAM: roles/storage.objectAdmin for the Day21 service account only; no project-wide Owner/Editor/Storage Admin grant.
+VM: track2-day21-mlops-serve; zone=us-central1-a; machine=e2-small; status=RUNNING; IP=136.115.109.5
+VM service account: track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com
+Firewall: track2-day21-allow-8000, tcp:8000, target tag track2-day21-mlops
+Systemd: mlops-serve.service active (running)

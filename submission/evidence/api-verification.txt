@@ -1,0 +1,5 @@
+Base URL: http://136.115.109.5:8000
+GET /health -> {"status":"ok"}
+POST /predict with 12-feature rubric sample -> {"prediction":0,"label":"thap"}
+POST /predict with 3 features -> HTTP 400
+Final systemd status: mlops-serve.service active (running)
