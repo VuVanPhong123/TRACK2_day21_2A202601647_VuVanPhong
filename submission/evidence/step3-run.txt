@@ -1,4 +1,4 @@
-Step 3 run: 32453289515
+Historical Step 3 run: 32453289515 (superseded 0.68 gate)
 URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32453289515
 Trigger commit: 1748341334a78e688dcc270d32d750e900724612
 Trigger type: push caused by data/train_phase1.csv.dvc pointer update
@@ -6,5 +6,5 @@ Pointer-only commit: data/train_phase1.csv.dvc
 Rows: 2998 -> 5996
 Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
 Validation accuracy=0.7233; held-out accuracy=0.7480; weighted F1=0.7470636556
-Gate: 0.7480 >= 0.68
+Gate: 0.7480 >= 0.68; not final 0.70 compliance
 Health check: passed on attempt 2.

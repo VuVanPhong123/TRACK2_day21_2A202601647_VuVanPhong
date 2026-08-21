@@ -21,7 +21,7 @@ env:
   GCP_PROJECT_ID: track2-day16-2a202601647
   GCP_SERVICE_ACCOUNT: track2-day21-mlops-sa@track2-day16-2a202601647.iam.gserviceaccount.com
   WORKLOAD_IDENTITY_PROVIDER: projects/127452559814/locations/global/workloadIdentityPools/track2-day21-github-pool/providers/track2-day21-github
-  EVAL_THRESHOLD: "0.68"
+  EVAL_THRESHOLD: "0.70"
 
 jobs:
   test:

@@ -1,10 +1,10 @@
-Step 2 green run: 32452594273
+Historical Step 2 green run: 32452594273 (superseded 0.68 gate)
 URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452594273
 Commit: 517eafef0c3d6fe01304e8c9548254a022b19f76
 Event: push
 Jobs: Unit Test=success, Train=success, Eval=success, Deploy=success
 Model: random_forest; validation accuracy=0.7067; held-out accuracy=0.6820; weighted F1=0.6808443913
-Gate: 0.6820 >= 0.68
+Gate: 0.6820 >= 0.68; not final 0.70 compliance
 Train artifact: candidate-model (models/model.pkl and outputs/metrics.json)
 Promotion: Deploy downloaded candidate-model and uploaded models/latest/model.pkl only after Eval success.
 Health check: passed on attempt 2.

@@ -1,9 +1,9 @@
-Negative eval-gate run: 32452836880
+Historical negative eval-gate run: 32452836880 (superseded 0.68 gate)
 URL: https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32452836880
 Commit: 4f0d4b0be914a4dec4bd51757b71e010d180060b
 Configuration: random_forest, n_estimators=10, max_depth=3, max_features=null, class_weight=null, random_state=42
 Train: success; validation accuracy=0.5850; held-out accuracy=0.5480; weighted F1=0.5386
-Eval: failure, 0.5480 < 0.68
+Eval: failure, 0.5480 < 0.68; not valid proof for the authoritative 0.70 gate
 Deploy: skipped
 GCS latest generation before and after negative run: 1787292111980070
 Conclusion: the failed candidate did not overwrite models/latest/model.pkl.

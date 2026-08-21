@@ -16,7 +16,7 @@ from sklearn.ensemble import (
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.model_selection import train_test_split
 
-EVAL_THRESHOLD = 0.68
+EVAL_THRESHOLD = 0.70
 TARGET_COLUMN = "target"
 DEFAULT_TRACKING_URI = "sqlite:///mlflow.db"
 EXPERIMENT_NAME = "wine-quality-random-forest"
