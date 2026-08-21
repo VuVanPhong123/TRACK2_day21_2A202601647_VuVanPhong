@@ -1,0 +1,8 @@
+Command: ACCURACY=0.694; threshold=0.70; run the same comparison logic as the workflow Eval job.
+
+Output:
+accuracy=0.6940, threshold=0.70
+FAILED: accuracy 0.6940 < 0.70. Deploy blocked.
+LOCAL_GATE_EXIT=1
+
+This is local evidence only, not a GitHub Actions run.

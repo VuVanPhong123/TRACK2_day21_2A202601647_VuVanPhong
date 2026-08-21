@@ -1,0 +1,6 @@
+GCP account: authenticated as phongbeo124@gmail.com
+Active GCP project: track2-day16-2a202601647 (not used; unrelated Day 16 project)
+Accessible project list: no project identified as the Day 21 lab project
+GitHub target repository: VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong
+GitHub Actions secrets: none listed
+Existing GitHub Actions runs on main: none
