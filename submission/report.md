@@ -1,54 +1,56 @@
-# Day 21 MLOps report
+# Báo cáo Day 21 – CI/CD cho AI Systems
 
-## Final model and evaluation
+## 1. Mô hình và kết quả thực nghiệm
 
-Model type: `random_forest` (`sklearn.ensemble.RandomForestClassifier`).
+Bài toán sử dụng bộ dữ liệu Wine Quality và mô hình
+`RandomForestClassifier`. Sau nhiều lần thử nghiệm trên MLflow với các bộ
+siêu tham số khác nhau, cấu hình cuối cùng được chọn là:
 
-```yaml
-n_estimators: 300
-max_depth: 30
-min_samples_split: 2
-min_samples_leaf: 1
-max_features: sqrt
-criterion: gini
-bootstrap: true
-class_weight: {0: 1.25, 1: 0.75, 2: 0.75}
-n_jobs: -1
-random_state: 42
-feature_families: [density_alcohol, sulfur_alcohol]
-eval_threshold: 0.70
-```
+- `n_estimators = 300`
+- `max_depth = 30`
+- `min_samples_split = 2`
+- `max_features = sqrt`
+- `class_weight = {0: 1.25, 1: 0.75, 2: 0.75}`
+- `random_state = 42`
 
-The serialized sklearn pipeline accepts the original 12 features and adds `alcohol_density`, `alcohol_density_gap`, and `total_sulfur_alcohol_ratio`. Phase 1 reproduced accuracy `0.7000` (`350/500`) and weighted F1 `0.6988602224515537`. The final Step 2 Actions artifact reports the same result. Step 3 reports accuracy `0.7480` and weighted F1 `0.7473569387652077` on 5996 training rows.
+Ngoài 12 đặc trưng gốc, pipeline bổ sung một số đặc trưng xác định từ dữ liệu
+đầu vào, gồm `alcohol_density`, `alcohol_density_gap` và
+`total_sulfur_alcohol_ratio`.
 
-Step 1 retains the original 20 MLflow RandomForest runs. The prior best was run `c661a0eccc7b4daa806276f4f7eba402` at accuracy `0.6940`, F1 `0.6922020059`. The feature-family implementation was selected in the local Step-1 experimentation workflow and reproduced deterministically before CI.
+Cấu hình này được chọn vì RandomForest chỉ với các đặc trưng gốc đạt tốt nhất
+khoảng `0.696` accuracy và chưa vượt qua ngưỡng Eval `0.70`. Sau khi bổ sung
+feature engineering, mô hình đạt `0.7000` accuracy và `0.6989` weighted F1 trên
+500 mẫu đánh giá, đủ điều kiện triển khai ở Bước 2.
 
-## Remote evidence
+## 2. Pipeline CI/CD và DVC
 
-- Step 2: [32459739043](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32459739043), commit `e2e84fa`, four green jobs, `0.7000 / 0.6988602225`.
-- Negative gate: [32460456911](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460456911), `0.5500 < 0.70`, Eval failed and Deploy skipped. GCS generation stayed `1787298423263119` before and after.
-- Restored green: [32460663067](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460663067), four green jobs, `0.7000 / 0.6988602225`.
-- Step 3: [32460997570](https://github.com/VuVanPhong123/TRACK2_day21_2A202601647_VuVanPhong/actions/runs/32460997570), pointer-only commit `7372e90`, four green jobs, `0.7480 / 0.7473569388`.
+Dữ liệu được quản lý bằng DVC với Google Cloud Storage làm remote. GitHub
+Actions gồm bốn job theo thứ tự:
 
-The old `0.68` runs are superseded intermediate evidence and are not used for acceptance.
+`Unit Test → Train → Eval → Deploy`.
 
-## Step 3 data transition
+Eval gate sử dụng ngưỡng `accuracy >= 0.70`. Run Bước 2 đạt `0.7000` và cả bốn
+job đều thành công. Một kiểm thử với mô hình yếu đạt `0.5500` đã làm Eval thất
+bại và Deploy bị bỏ qua, xác nhận gate hoạt động đúng.
 
-The precondition was verified at exactly `2998` rows. `add_new_data.py` was run exactly once and changed the local dataset to exactly `5996` rows. `dvc add` and `dvc push` completed before Git push. Commit `7372e90cd23db7e98a1ace1ec7643d058e4d07ea` contains only `data/train_phase1.csv.dvc` and automatically triggered the final Step 3 run.
+Ở Bước 3, 2.998 mẫu dữ liệu mới được bổ sung vào tập huấn luyện, tăng tổng số
+mẫu từ `2.998` lên `5.996`. File DVC pointer được commit và push đã tự động kích
+hoạt toàn bộ pipeline. Mô hình mới đạt `0.7480` accuracy và `0.7474` weighted
+F1, sau đó được triển khai thành công.
 
-## Cloud and serving
+## 3. Khó khăn và cách giải quyết
 
-The real DVC remote is `myremote` at `gs://track2-day21-2a202601647-mlops-20260821/dvc`; `dvc status --cloud` reports the cache and remote are in sync. The final model object is `models/latest/model.pkl`, generation `1787299301055162`.
+Khó khăn lớn nhất là mô hình RandomForest ban đầu không đạt được ngưỡng
+accuracy `0.70` dù đã thử nhiều bộ siêu tham số. Thay vì hạ ngưỡng hoặc thay đổi
+dữ liệu đánh giá, tôi giữ nguyên RandomForest và bổ sung feature engineering
+deterministic. Transformer được đóng gói cùng mô hình trong sklearn Pipeline để
+đảm bảo cùng một preprocessing được sử dụng khi train trong GitHub Actions và
+khi inference trên VM.
 
-VM `track2-day21-mlops-serve` runs `mlops-serve.service` with FastAPI on port 8000. The workflow uploads `src/serve.py` and `feature_engineering.py` to both the required root paths and the active `mlops-serve` directory, and ensures the serving venv has pandas for the transformer.
+Một khó khăn khác là model pickle có custom transformer cần đúng module và
+dependency trên VM. Workflow deploy được cập nhật để đồng bộ
+`feature_engineering.py` và các dependency cần thiết trước khi restart service.
 
-```text
-/health: {"status":"ok"} (HTTP 200)
-/predict: {"prediction":0,"label":"thap"} (HTTP 200)
-invalid feature length: HTTP 400
-systemd: active (running)
-```
-
-## Security and screenshots
-
-GitHub Actions uses OIDC Workload Identity Federation. No credential JSON, private SSH key, raw CSV, model binary, `.env`, or MLflow database is tracked. Browser screenshots were not fabricated; the manual screenshot file lists the final Actions, MLflow, GCS, and API views to capture.
+Kết quả cuối cùng, FastAPI trên VM trả về thành công tại `/health` và
+`/predict`, DVC remote hoạt động, Step 2 và Step 3 đều hoàn thành với Eval gate
+`0.70`.
